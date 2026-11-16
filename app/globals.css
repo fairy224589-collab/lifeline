@@ -482,7 +482,6 @@ html.cinematic-lock, html.cinematic-lock body { overflow: hidden; }
   .cine-drop { left: 0; top: 50%; margin: -8px 0 0 -6px; }
   .cine-node { left: 0; top: -44px; }
 }
-}
 
 /* ═════════ DONORS / NETWORK ART (components/cinematic/DonorsArt.tsx) ═════════ */
 .da-svg { width: 100%; height: auto; display: block; overflow: visible; }

@@ -44,6 +44,8 @@ export default function CinematicJourney({ onClose, targetId = "rapid-delivery" 
   const anims = useRef<Animation[]>([]);
   const closing = useRef(false);
   const dead = useRef(false);
+  const onCloseRef = useRef(onClose); // always the latest onClose, so `finish` stays stable across parent re-renders
+  onCloseRef.current = onClose;
 
   const finish = useCallback(async () => {
     if (closing.current) return;
@@ -54,8 +56,8 @@ export default function CinematicJourney({ onClose, targetId = "rapid-delivery" 
     if (el) window.scrollTo(0, Math.max(0, el.getBoundingClientRect().top + window.scrollY));
     const root = rootRef.current;
     if (root && !dead.current) { try { await root.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 650, easing: "ease", fill: "forwards" }).finished; } catch {} }
-    if (!dead.current) onClose();
-  }, [onClose, targetId]);
+    if (!dead.current) onCloseRef.current();
+  }, [targetId]);
 
   useEffect(() => { document.documentElement.classList.add("cinematic-lock"); return () => document.documentElement.classList.remove("cinematic-lock"); }, []);
   useEffect(() => {
@@ -66,13 +68,10 @@ export default function CinematicJourney({ onClose, targetId = "rapid-delivery" 
 
   // ── the whole film ──
   useEffect(() => {
-    // React Strict Mode (Next.js dev) runs this effect, tears it down, then runs it again.
-    // So every run needs its OWN fresh cancel flag and a reset 'closing' flag, otherwise the
-    // second run would inherit "cancelled = true" from the first and never play.
     dead.current = false;
-    closing.current = false;
-    const c: Cancel = { cancelled: false };
+    const c: Cancel = { cancelled: false }; // fresh token per run: a token cancelled by a previous run's cleanup must not freeze this one
     cancel.current = c;
+    closing.current = false;
     const canvas = canvasRef.current!;
     const compact = window.innerWidth < 768;
     const liquid = createLiquid(canvas, { scale: 3, blobs: compact ? 6 : 9 });

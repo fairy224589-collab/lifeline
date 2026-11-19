@@ -92,7 +92,9 @@ const ClockArt = forwardRef<ClockHandle, { static?: boolean }>(function ClockArt
       <g clipPath="url(#ck-clip)"><rect x="0" y="0" width="400" height="400" fill="#fff" filter="url(#ck-grain)" opacity=".35" /></g>
       {ticks.map((i) => {
         const big = i % 5 === 0, a = (i * 6 * Math.PI) / 180, r1 = big ? 150 : 160, r2 = 168;
-        return <line key={i} x1={200 + r1 * Math.sin(a)} y1={200 - r1 * Math.cos(a)} x2={200 + r2 * Math.sin(a)} y2={200 - r2 * Math.cos(a)} stroke={big ? "#FAF7F2" : "rgba(250,247,242,.42)"} strokeWidth={big ? 2.4 : 1.1} strokeLinecap="round" />;
+        // Round so server-rendered and browser-rendered attribute strings are identical (avoids hydration mismatch)
+        const q = (v: number) => Math.round(v * 1000) / 1000;
+        return <line key={i} x1={q(200 + r1 * Math.sin(a))} y1={q(200 - r1 * Math.cos(a))} x2={q(200 + r2 * Math.sin(a))} y2={q(200 - r2 * Math.cos(a))} stroke={big ? "#FAF7F2" : "rgba(250,247,242,.42)"} strokeWidth={big ? 2.4 : 1.1} strokeLinecap="round" />;
       })}
       {/* hour hand (still) */}
       <g transform={`rotate(300 ${C.x} ${C.y})`}><path d={`M ${C.x - 4} ${C.y} L ${C.x} ${C.y - 100} L ${C.x + 4} ${C.y} Z`} fill="rgba(250,247,242,.55)" /></g>
